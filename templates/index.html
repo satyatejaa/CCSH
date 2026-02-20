@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1 class="display-4">Welcome to CareConnect</h1>
+            <p class="lead">Rural Healthcare Management System</p>
+            <p class="fs-5">Bridging the gap between rural patients and healthcare providers through technology.</p>
+
+            {% if not user.is_authenticated %}
+                <div class="mt-4">
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-lg me-2">Get Started</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg">Login</a>
+                </div>
+            {% endif %}
+        </div>
+<div class="col-lg-6">
+    <img src="https://img.freepik.com/premium-photo/set-medical-healthcare-center-social-media-post-template-web-banner-advertising_1121250-146058.jpg" 
+         alt="Healthcare" 
+         class="img-fluid rounded shadow">
+</div>
+
+    </div>
+
+    <div class="row mt-5 g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">Easy Appointment Booking</h5>
+                    <p class="card-text">Book appointments with doctors online, anytime, anywhere.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-file-medical fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">Digital Medical Records</h5>
+                    <p class="card-text">Access your complete medical history digitally.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">Analytics for Hospitals</h5>
+                    <p class="card-text">Track patient flow, doctor performance, and more.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

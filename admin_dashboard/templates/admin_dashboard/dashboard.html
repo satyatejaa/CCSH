@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Admin Dashboard</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text display-6">{{ total_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Patients</h5>
+                    <p class="card-text display-6">{{ total_patients }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Doctors</h5>
+                    <p class="card-text display-6">{{ total_doctors }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Hospitals</h5>
+                    <p class="card-text display-6">{{ total_hospitals }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Today's Appointments:</strong> {{ today_appointments }}</p>
+                    <p><strong>Pending Doctor Verifications:</strong> {{ pending_doctors }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Top Doctors</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for doctor in top_doctors %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Dr. {{ doctor.user.get_full_name }}
+                                <span class="badge bg-primary rounded-pill">{{ doctor.appointment_count }} appointments</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">No data available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Appointments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for apt in recent_appointments %}
+                                    <tr>
+                                        <td>{{ apt.patient.get_full_name }}</td>
+                                        <td>Dr. {{ apt.doctor.user.get_full_name }}</td>
+                                        <td>{{ apt.appointment_date }}</td>
+                                        <td>{{ apt.appointment_time }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ apt.status }}">{{ apt.status }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

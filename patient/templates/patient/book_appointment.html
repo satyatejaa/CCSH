@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Book Appointment with Dr. {{ doctor.user.get_full_name }}</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Doctor Information -->
+                    <div class="doctor-info mb-4 p-3 bg-light rounded">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Specialty:</strong> {{ doctor.specialty }}</p>
+                                <p><strong>Hospital:</strong> {{ doctor.hospital.name }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Experience:</strong> {{ doctor.experience_years }} years</p>
+                                <p><strong>Consultation Fee:</strong> ₹{{ doctor.consultation_fee }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Time Info -->
+                    <div class="alert alert-info mb-4">
+                        <strong>Current Date & Time:</strong> {% now "F j, Y" %} at {% now "g:i A" %}
+                    </div>
+
+                    <form method="post" id="appointmentForm">
+                        {% csrf_token %}
+
+                        <!-- Date and Time Picker -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold fs-5">📅 Select Date and Time:</label>
+                            <input type="datetime-local" 
+                                   name="appointment_datetime" 
+                                   class="form-control form-control-lg" 
+                                   id="datetimePicker"
+                                   min="{{ min_datetime }}"
+                                   required>
+                            <div class="form-text" id="datetimeHelp">
+                                <i class="bi bi-info-circle"></i> 
+                                Select a future date and time
+                            </div>
+                        </div>
+
+                        <!-- Symptoms -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold fs-5">📝 Symptoms/Reason for Visit:</label>
+                            <textarea name="symptoms" class="form-control" rows="4" 
+                                      placeholder="Please describe your symptoms or reason for consultation"
+                                      required></textarea>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'search_doctors' %}" class="btn btn-secondary btn-lg px-4">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
+                                <i class="bi bi-calendar-check"></i> Book Appointment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const datetimePicker = document.getElementById('datetimePicker');
+    const form = document.getElementById('appointmentForm');
+    const symptomsField = document.querySelector('textarea[name="symptoms"]');
+    const datetimeHelp = document.getElementById('datetimeHelp');
+    
+    // Function to get current datetime in the right format
+    function getCurrentDateTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+    
+    // Set min to current time if not set from backend
+    if (!datetimePicker.min || datetimePicker.min === 'None') {
+        datetimePicker.min = getCurrentDateTime();
+    }
+    
+    // Real-time validation
+    datetimePicker.addEventListener('change', validateDateTime);
+    datetimePicker.addEventListener('input', validateDateTime);
+    
+    function validateDateTime() {
+        const selectedValue = datetimePicker.value;
+        
+        if (!selectedValue) {
+            datetimeHelp.innerHTML = '<i class="bi bi-exclamation-circle text-warning"></i> Please select a date and time';
+            datetimeHelp.className = 'form-text text-warning';
+            return false;
+        }
+        
+        // Parse selected date
+        const selectedDate = new Date(selectedValue);
+        const now = new Date();
+        
+        // Remove milliseconds for accurate comparison
+        selectedDate.setMilliseconds(0);
+        now.setMilliseconds(0);
+        
+        // Debug info (you can see this in browser console)
+        console.log('Selected:', selectedDate);
+        console.log('Now:', now);
+        console.log('Is future:', selectedDate > now);
+        
+        if (selectedDate <= now) {
+            datetimeHelp.innerHTML = '<i class="bi bi-exclamation-triangle text-danger"></i> Please select a future date and time';
+            datetimeHelp.className = 'form-text text-danger';
+            return false;
+        }
+        
+        // Check if within 30 days
+        const thirtyDaysLater = new Date();
+        thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+        
+        if (selectedDate > thirtyDaysLater) {
+            datetimeHelp.innerHTML = '<i class="bi bi-exclamation-triangle text-warning"></i> Please select within next 30 days';
+            datetimeHelp.className = 'form-text text-warning';
+            return false;
+        }
+        
+        datetimeHelp.innerHTML = '<i class="bi bi-check-circle text-success"></i> ✓ Valid date and time';
+        datetimeHelp.className = 'form-text text-success';
+        return true;
+    }
+    
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Validate datetime
+        if (!datetimePicker.value) {
+            errorMessage = 'Please select date and time';
+            isValid = false;
+        } else {
+            const selectedDate = new Date(datetimePicker.value);
+            const now = new Date();
+            
+            if (selectedDate <= now) {
+                errorMessage = 'Please select a future date and time';
+                isValid = false;
+            }
+        }
+        
+        // Validate symptoms
+        if (!symptomsField.value.trim()) {
+            errorMessage = 'Please describe your symptoms';
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('⚠️ ' + errorMessage);
+        }
+    });
+    
+    // Trigger initial validation if there's a value
+    if (datetimePicker.value) {
+        validateDateTime();
+    }
+});
+</script>
+
+<style>
+input[type="datetime-local"] {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #dee2e6;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="datetime-local"]:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,0.25);
+}
+
+input[type="datetime-local"].is-valid {
+    border-color: #198754;
+}
+
+input[type="datetime-local"].is-invalid {
+    border-color: #dc3545;
+}
+
+.doctor-info {
+    border-left: 5px solid #0d6efd;
+    background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+    .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

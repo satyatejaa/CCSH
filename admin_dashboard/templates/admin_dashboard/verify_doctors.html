@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Verify Doctors</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5>Pending Verifications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Doctor Name</th>
+                                    <th>Specialty</th>
+                                    <th>Hospital</th>
+                                    <th>Qualification</th>
+                                    <th>Experience</th>
+                                    <th>Contact</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doctor in doctors %}
+                                    <tr>
+                                        <td>Dr. {{ doctor.user.get_full_name }}</td>
+                                        <td>{{ doctor.specialty }}</td>
+                                        <td>{{ doctor.hospital.name }}</td>
+                                        <td>{{ doctor.qualification }}</td>
+                                        <td>{{ doctor.experience_years }} years</td>
+                                        <td>{{ doctor.user.email }}<br>{{ doctor.user.profile.phone }}</td>
+                                        <td>
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="doctor_id" value="{{ doctor.id }}">
+                                                <button type="submit" name="action" value="verify"
+                                                        class="btn btn-success btn-sm">Verify</button>
+                                                <button type="submit" name="action" value="reject"
+                                                        class="btn btn-danger btn-sm">Reject</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No pending verifications.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Medical History</h2>
+
+    <div class="row">
+        {% for record in records %}
+            <div class="col-md-12 mb-3">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <strong>Visit Date:</strong> {{ record.created_at|date:"F j, Y" }}
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Doctor:</strong> Dr. {{ record.doctor.user.get_full_name }}
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Specialty:</strong> {{ record.doctor.specialty }}
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Hospital:</strong> {{ record.doctor.hospital.name }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <h6>Diagnosis:</h6>
+                                <p>{{ record.diagnosis }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6>Prescription:</h6>
+                                <p>{{ record.prescription|linebreaks }}</p>
+                            </div>
+                        </div>
+                        {% if record.notes %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6>Additional Notes:</h6>
+                                    <p>{{ record.notes }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <p class="text-muted">No medical records found.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

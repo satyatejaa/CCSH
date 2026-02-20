@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4>Add Prescription for {{ appointment.patient.get_full_name }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="appointment-info mb-4">
+                        <p><strong>Date:</strong> {{ appointment.appointment_date }}</p>
+                        <p><strong>Time:</strong> {{ appointment.appointment_time }}</p>
+                        <p><strong>Symptoms:</strong> {{ appointment.symptoms }}</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Diagnosis</label>
+                            <textarea name="diagnosis" class="form-control" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Prescription</label>
+                            <textarea name="prescription" class="form-control" rows="5" required></textarea>
+                            <small class="text-muted">Include medicine names, dosage, and duration</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Additional Notes</label>
+                            <textarea name="notes" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save Prescription & Complete</button>
+                        <a href="{% url 'manage_appointments' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

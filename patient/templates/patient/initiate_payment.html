@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Complete Payment</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Appointment Summary -->
+                    <div class="alert alert-info">
+                        <h5>Appointment Summary</h5>
+                        <p><strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name }}</p>
+                        <p><strong>Specialty:</strong> {{ appointment.doctor.specialty }}</p>
+                        <p><strong>Date:</strong> {{ appointment.appointment_date|date:"F j, Y" }}</p>
+                        <p><strong>Time:</strong> {{ appointment.appointment_time|time:"g:i A" }}</p>
+                        <p><strong>Amount:</strong> ₹{{ appointment.doctor.consultation_fee }}</p>
+                    </div>
+                    
+                    <!-- Payment Button -->
+                    <button id="pay-btn" class="btn btn-success btn-lg w-100">
+                        <i class="bi bi-lock-fill"></i> Pay ₹{{ appointment.doctor.consultation_fee }}
+                    </button>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="bi bi-shield-check"></i> 
+                            Secure payment powered by Razorpay
+                        </small>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <a href="{% url 'my_appointments' %}" class="btn btn-link">Cancel and go back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Razorpay Checkout Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "{{ razorpay_key }}",
+    "amount": "{{ amount }}",
+    "currency": "{{ currency }}",
+    "name": "CareConnect",
+    "description": "Appointment with Dr. {{ appointment.doctor.user.get_full_name }}",
+    "image": "{% static 'images/logo.png' %}",
+    "order_id": "{{ order_id }}",
+    "handler": function (response) {
+        // Submit form with payment response
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "payment_callback" %}';
+        
+        var csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = 'csrfmiddlewaretoken';
+        csrf.value = '{{ csrf_token }}';
+        form.appendChild(csrf);
+        
+        var paymentId = document.createElement('input');
+        paymentId.type = 'hidden';
+        paymentId.name = 'razorpay_payment_id';
+        paymentId.value = response.razorpay_payment_id;
+        form.appendChild(paymentId);
+        
+        var orderId = document.createElement('input');
+        orderId.type = 'hidden';
+        orderId.name = 'razorpay_order_id';
+        orderId.value = response.razorpay_order_id;
+        form.appendChild(orderId);
+        
+        var signature = document.createElement('input');
+        signature.type = 'hidden';
+        signature.name = 'razorpay_signature';
+        signature.value = response.razorpay_signature;
+        form.appendChild(signature);
+        
+        document.body.appendChild(form);
+        form.submit();
+    },
+    "prefill": {
+        "name": "{{ user.get_full_name }}",
+        "email": "{{ user.email }}",
+        "contact": "{{ user.profile.phone }}"
+    },
+    "theme": {
+        "color": "#0d6efd"
+    }
+};
+
+var rzp = new Razorpay(options);
+
+rzp.on('payment.failed', function (response) {
+    alert('Payment failed: ' + response.error.description);
+});
+
+document.getElementById('pay-btn').onclick = function(e) {
+    rzp.open();
+    e.preventDefault();
+};
+</script>
+
+<style>
+#pay-btn {
+    padding: 15px;
+    font-size: 18px;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <h4>Welcome, {{ user.username }}!</h4>
+                <p>You are logged in as <strong>{{ user.profile.role|title }}</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-circle fs-1"></i>
+                    <h5 class="card-title mt-3">{{ user.get_full_name|default:user.username }}</h5>
+                    <p class="card-text">{{ user.email }}</p>
+                    <p class="card-text">{{ user.profile.phone }}</p>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-primary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if user.profile.role == 'patient' %}
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'search_doctors' %}" class="btn btn-primary w-100">
+                                    <i class="bi bi-search"></i> Find Doctors
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'my_appointments' %}" class="btn btn-success w-100">
+                                    <i class="bi bi-calendar-check"></i> My Appointments
+                                </a>
+                            </div>
+                        {% elif user.profile.role == 'doctor' %}
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'manage_appointments' %}" class="btn btn-primary w-100">
+                                    <i class="bi bi-list-check"></i> Manage Appointments
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'set_availability' %}" class="btn btn-success w-100">
+                                    <i class="bi bi-clock"></i> Set Availability
+                                </a>
+                            </div>
+                        {% elif user.profile.role == 'admin' %}
+                            <div class="col-md-4 mb-3">
+                                <a href="{% url 'manage_hospitals' %}" class="btn btn-primary w-100">
+                                    <i class="bi bi-building"></i> Hospitals
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="{% url 'verify_doctors' %}" class="btn btn-warning w-100">
+                                    <i class="bi bi-person-check"></i> Verify Doctors
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="{% url 'analytics' %}" class="btn btn-info w-100">
+                                    <i class="bi bi-graph-up"></i> Analytics
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

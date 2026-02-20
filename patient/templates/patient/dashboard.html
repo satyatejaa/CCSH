@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Patient Dashboard</h2>
+    
+    <!-- Statistics Cards -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Appointments</h5>
+                    <p class="card-text display-6">{{ total_appointments }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Completed</h5>
+                    <p class="card-text display-6">{{ completed_appointments }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <p class="card-text display-6">{{ pending_appointments }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Medical Records</h5>
+                    <p class="card-text display-6">{{ total_records }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Buttons -->
+    <div class="row mt-4 mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'search_doctors' %}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-search"></i> Find Doctors
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'my_appointments' %}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-calendar-check"></i> My Appointments
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'medical_history' %}" class="btn btn-outline-info w-100">
+                                <i class="bi bi-file-medical"></i> Medical History
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-person"></i> My Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Upcoming Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                        {% for apt in upcoming_appointments %}
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6>Dr. {{ apt.doctor.user.get_full_name }}</h6>
+                                    <p class="mb-1">Date: {{ apt.appointment_date|date:"F j, Y" }} at {{ apt.appointment_time|time:"g:i A" }}</p>
+                                    <p class="mb-1">Status: 
+                                        <span class="badge bg-{% if apt.status == 'pending' %}warning{% elif apt.status == 'approved' %}success{% endif %}">
+                                            {{ apt.status }}
+                                        </span>
+                                    </p>
+                                    <a href="{% url 'my_appointments' %}" class="btn btn-sm btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No upcoming appointments</p>
+                        <a href="{% url 'search_doctors' %}" class="btn btn-primary">Book Appointment</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical History Preview -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5>Recent Medical Records</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_records %}
+                        {% for record in recent_records %}
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6>Dr. {{ record.doctor.user.get_full_name }}</h6>
+                                    <p class="mb-1">Date: {{ record.created_at|date:"F j, Y" }}</p>
+                                    <p class="mb-1"><strong>Diagnosis:</strong> {{ record.diagnosis|truncatechars:50 }}</p>
+                                    <a href="{% url 'medical_history' %}" class="btn btn-sm btn-info">View Full Record</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="text-center mt-2">
+                            <a href="{% url 'medical_history' %}" class="btn btn-outline-info">View All Medical Records</a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No medical records yet</p>
+                        <p>Complete appointments to see your medical history here.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}

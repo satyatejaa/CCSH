@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Patient History: {{ patient.get_full_name }}</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Appointment History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Symptoms</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for apt in appointments %}
+                                    <tr>
+                                        <td>{{ apt.appointment_date }}</td>
+                                        <td>{{ apt.appointment_time }}</td>
+                                        <td>{{ apt.symptoms }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ apt.status }}">{{ apt.status }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5>Medical Records</h5>
+                </div>
+                <div class="card-body">
+                    {% for record in medical_records %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <strong>{{ record.created_at|date:"F j, Y" }}</strong>
+                            </div>
+                            <div class="card-body">
+                                <h6>Diagnosis:</h6>
+                                <p>{{ record.diagnosis }}</p>
+                                <h6>Prescription:</h6>
+                                <p>{{ record.prescription|linebreaks }}</p>
+                                {% if record.notes %}
+                                    <h6>Notes:</h6>
+                                    <p>{{ record.notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">No medical records found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

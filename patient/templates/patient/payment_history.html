@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Payment History</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">All Transactions</h5>
+                </div>
+                <div class="card-body">
+                    {% if payments %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Appointment ID</th>
+                                        <th>Doctor</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Transaction ID</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                    <tr>
+                                        <td>{{ payment.payment_date|date:"d M Y, h:i A"|default:"-" }}</td>
+                                        <td>#{{ payment.appointment.id }}</td>
+                                        <td>Dr. {{ payment.doctor.user.get_full_name }}</td>
+                                        <td><strong>₹{{ payment.amount }}</strong></td>
+                                        <td>
+                                            {% if payment.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% elif payment.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            {% elif payment.status == 'failed' %}
+                                                <span class="badge bg-danger">Failed</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ payment.status|title }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ payment.razorpay_payment_id|default:"—" }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if payment.status == 'completed' %}
+                                                <a href="{% url 'payment_success' payment.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-receipt"></i> View
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Summary Card -->
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="card text-white bg-success">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total Paid</h5>
+                                        <p class="card-text display-6">
+                                            ₹{{ payments|dictsortreversed:"amount"|slice:":1"|first|default:"0" }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-white bg-info">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total Transactions</h5>
+                                        <p class="card-text display-6">{{ payments|length }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-white bg-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Successful Payments</h5>
+                                        <p class="card-text display-6">
+                                            {{ payments|dictsort:"status"|slice:":1"|first|default:"0" }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-credit-card" style="font-size: 4rem; color: #6c757d;"></i>
+                            <h4 class="mt-3">No Payment History</h4>
+                            <p class="text-muted">You haven't made any payments yet.</p>
+                            <a href="{% url 'search_doctors' %}" class="btn btn-primary mt-2">
+                                <i class="bi bi-search"></i> Find Doctors
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

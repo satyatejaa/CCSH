@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Find Doctors</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Specialty</label>
+                    <select name="specialty" class="form-select">
+                        <option value="">All Specialties</option>
+                        {% for specialty in specialties %}
+                            <option value="{{ specialty }}">{{ specialty }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Hospital</label>
+                    <select name="hospital" class="form-select">
+                        <option value="">All Hospitals</option>
+                        {% for hospital in hospitals %}
+                            <option value="{{ hospital.id }}">{{ hospital.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Doctor name...">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for doctor in doctors %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Dr. {{ doctor.user.get_full_name }}</h5>
+                        <p class="card-text">
+                            <strong>Specialty:</strong> {{ doctor.specialty }}<br>
+                            <strong>Hospital:</strong> {{ doctor.hospital.name }}<br>
+                            <strong>Experience:</strong> {{ doctor.experience_years }} years<br>
+                            <strong>Fee:</strong> ₹{{ doctor.consultation_fee }}
+                        </p>
+                        <a href="{% url 'book_appointment' doctor.id %}" class="btn btn-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <p class="text-muted">No doctors found.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
