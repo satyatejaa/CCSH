@@ -1,4 +1,3 @@
-:
 
 🏥 CareConnect – Rural Healthcare Management System
 
